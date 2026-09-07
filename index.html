@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Donde comienza nuestro mundo</title>
 <style>
 body{margin:0;background:#10171b;color:#f7ead1;font-family:Georgia,serif;text-align:center}
@@ -10,16 +10,17 @@ main{max-width:1100px;margin:0 auto;padding:18px}
 .marca{letter-spacing:.18em;color:#e6c88d;font-size:12px}
 h1{color:#f2d59b;font-size:clamp(26px,5vw,44px);margin:10px 0}
 #prog{font-size:18px;margin:10px 0}
-.mapa{position:relative;border:3px solid #8b6736;border-radius:14px;overflow:hidden;line-height:0}
-.mapa img{width:100%;height:auto;display:block}
-.portal{position:absolute;width:8%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #f2d59b;background:rgba(255,255,255,0.2);cursor:pointer}
-.portal.found{background:rgba(130,255,130,0.5)}
+.mapa{position:relative;border:3px solid #8b6736;border-radius:14px;overflow:hidden;line-height:0;touch-action: manipulation;}
+.mapa img{width:100%;height:auto;display:block;pointer-events:none}
+.portal{position:absolute;z-index:5;width:12%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #f2d59b;background:rgba(242,213,155,0.35);box-shadow:0 0 12px #f2d59b;cursor:pointer;-webkit-tap-highlight-color: transparent;}
+.portal:active{transform:translate(-50%,-50%) scale(0.9)}
+.portal.found{background:rgba(130,255,130,0.6);box-shadow:0 0 15px #82ff82}
 .p1{left:27%;top:49%}.p2{left:28%;top:19%}.p3{left:49%;top:13%}.p4{left:62%;top:40%}.p5{left:62%;top:58%}
-.modal{display:none;position:fixed;inset:0;background:#000c;z-index:9;place-items:center;padding:18px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:20;place-items:center;padding:18px}
 .modal.on{display:grid}
-.box{background:#1b2b31;border:2px solid #d6ad62;border-radius:18px;padding:22px;max-width:520px;text-align:left}
-button{padding:11px 18px;border-radius:10px;border:1px solid #d6ad62;background:#61451f;color:#f7ead1;font-weight:bold;cursor:pointer;margin:5px}
-#final{display:none;margin-top:18px;border:2px dashed #d6ad62;border-radius:12px;padding:12px}
+.box{background:#1b2b31;border:2px solid #d6ad62;border-radius:18px;padding:22px;max-width:520px;text-align:left;line-height:1.4}
+button.btn{padding:12px 18px;border-radius:10px;border:1px solid #d6ad62;background:#61451f;color:#f7ead1;font-weight:bold;cursor:pointer;margin:6px}
+#final{display:none;margin-top:18px;border:2px dashed #d6ad62;border-radius:12px;padding:15px;background:#1b2b31}
 </style>
 </head>
 <body>
@@ -28,37 +29,38 @@ button{padding:11px 18px;border-radius:10px;border:1px solid #d6ad62;background:
 <h1>DONDE COMIENZA NUESTRO MUNDO</h1>
 <p id="prog">✨ 0/5 mundos descubiertos</p>
 
-<div class="mapa">
+<div class="mapa" id="mapa">
 <img src="mapa-cinco-mundos.png" alt="Mapa">
-<button class="portal p1" data-n="0"></button>
-<button class="portal p2" data-n="1"></button>
-<button class="portal p3" data-n="2"></button>
-<button class="portal p4" data-n="3"></button>
-<button class="portal p5" data-n="4"></button>
+<button class="portal p1" onclick="openM(0)"></button>
+<button class="portal p2" onclick="openM(1)"></button>
+<button class="portal p3" onclick="openM(2)"></button>
+<button class="portal p4" onclick="openM(3)"></button>
+<button class="portal p5" onclick="openM(4)"></button>
 </div>
 
-<div id="final"><h2>🌌 PORTAL FINAL ABIERTO</h2><p><b>MIRAR JUNTOS · SOÑAR JUNTOS · CRECER JUNTOS</b></p></div>
-<footer>Hecho con amor por Dianime ❤️ · Paz y Bien 🌿</footer>
+<div id="final"><h2>🌌 PORTAL FINAL ABIERTO</h2><p><b>MIRAR JUNTOS · SOÑAR JUNTOS · CRECER JUNTOS</b></p><p>¡Encontraste los 5 mundos! Esta pintura es solo el inicio.</p></div>
+<footer style="margin-top:20px;color:#e6c88d">Hecho con amor por Dianime ❤️</footer>
 </main>
 
-<div id="modal" class="modal"><div class="box"><h2 id="t"></h2><p id="h"></p><p id="s" style="display:none"></p><button id="ok">✨ ¡LO ENCONTRÉ!</button><button onclick="document.getElementById('modal').classList.remove('on')">Volver</button></div></div>
+<div id="modal" class="modal" onclick="if(event.target==this)closeM()">
+<div class="box"><h2 id="t"></h2><p id="h"></p><p id="s" style="display:none;font-weight:bold;margin-top:12px"></p><button class="btn" id="ok">✨ ¡LO ENCONTRÉ!</button><button class="btn" onclick="closeM()">Volver al mapa</button></div>
+</div>
 
 <script>
 const datos=[
-["01 PRINCESA MONONOKE","Pista: Busca la jarra de la izquierda, hay dos espíritus pequeños.","🌿 MONONOKE: La fuerza de la naturaleza vive en los detalles."],
-["02 EL CASTILLO EN EL CIELO","Pista: Busca arriba, en el cielo, un castillo flotante.","🏰 LAPUTA: El verdadero tesoro es mirar arriba con esperanza."],
-["03 EL CASTILLO AMBULANTE","Pista: Arriba a la derecha, un castillo con patas que camina.","🔥 HOWL: El amor nos da piernas para seguir."],
-["04 MI VECINO TOTORO","Pista: Lado derecho, detrás de las plantas, hay un amigo escondido.","🌳 TOTORO: La magia se esconde a simple vista."],
-["05 KIKI ENTREGAS A DOMICILIO","Pista: Mira hacia el horizonte, donde el mar abraza la ciudad.","🧹 KIKI: Entregar sueños también es del corazón."]
+["01 PRINCESA MONONOKE","Pista: Busca la jarra de la izquierda, hay dos espíritus pequeños.","🌿 SECRETO: MONONOKE - La fuerza de la naturaleza vive en los detalles pequeños."],
+["02 EL CASTILLO EN EL CIELO","Pista: Busca arriba, en el cielo, un castillo flotante.","🏰 SECRETO: LAPUTA - El verdadero tesoro es mirar arriba con esperanza."],
+["03 EL CASTILLO AMBULANTE","Pista: Arriba a la derecha, un castillo con patas que camina.","🔥 SECRETO: HOWL - El amor nos da piernas para seguir andando."],
+["04 MI VECINO TOTORO","Pista: Lado derecho, detrás de las plantas, hay un amigo escondido.","🌳 SECRETO: TOTORO - A veces la magia se esconde a simple vista."],
+["05 KIKI: ENTREGAS A DOMICILIO","Pista: Mira hacia el horizonte, donde el mar abraza la ciudad.","🧹 SECRETO: KIKI - Entregar sueños también es un trabajo del corazón."]
 ];
 let found=new Set(JSON.parse(localStorage.getItem("dianime5")||"[]"));
 let cur=0;
-const modal=document.getElementById('modal');
-function openM(n){cur=n;document.getElementById('t').textContent=datos[n][0];document.getElementById('h').textContent=datos[n][1];document.getElementById('s').textContent=datos[n][2];document.getElementById('s').style.display='none';modal.classList.add('on')}
-document.querySelectorAll('.portal').forEach((b,i)=>b.onclick=()=>openM(i));
-document.getElementById('ok').onclick=()=>{found.add(cur);localStorage.setItem("dianime5",JSON.stringify([...found]));document.getElementById('s').style.display='block';update()};
+function openM(n){cur=n;document.getElementById('t').innerText=datos[n][0];document.getElementById('h').innerText=datos[n][1];document.getElementById('s').innerText=datos[n][2];document.getElementById('s').style.display='none';document.getElementById('modal').classList.add('on')}
+function closeM(){document.getElementById('modal').classList.remove('on')}
+document.getElementById('ok').onclick=function(){found.add(cur);localStorage.setItem("dianime5",JSON.stringify([...found]));document.getElementById('s').style.display='block';update()};
 function update(){
-document.getElementById('prog').textContent="✨ "+found.size+"/5 mundos descubiertos";
+document.getElementById('prog').innerText="✨ "+found.size+"/5 mundos descubiertos";
 document.querySelectorAll('.portal').forEach((el,i)=>{if(found.has(i))el.classList.add('found')});
 if(found.size>=5)document.getElementById('final').style.display='block';
 }
